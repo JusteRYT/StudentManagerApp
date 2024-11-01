@@ -21,7 +21,7 @@ class StudentDAOTest {
         student.setFirstName("Иван");
         student.setLastName("Иванов");
         student.setPatronymic("Иванович");
-        student.setBirthDate(new Date());
+        student.setBirthDate("21-08-2023");
         student.setGroupName("A1");
         student.setUniqueNumber("12345");
 
@@ -34,13 +34,13 @@ class StudentDAOTest {
         student.setFirstName("Петр");
         student.setLastName("Петров");
         student.setPatronymic("Петрович");
-        student.setBirthDate(new Date());
+        student.setBirthDate("01-01-2023");
         student.setGroupName("B2");
         student.setUniqueNumber("67890");
 
         try {
             studentDAO.addStudent(student);
-            studentDAO.deleteStudent(67890);
+            studentDAO.deleteStudent("67890");
             List<Student> students = studentDAO.getAllStudents();
             assertTrue(students.stream().noneMatch(s -> "67890".equals(s.getUniqueNumber())));
         } catch (SQLException e) {
