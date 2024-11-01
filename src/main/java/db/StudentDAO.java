@@ -11,6 +11,20 @@ import java.util.List;
  */
 public class StudentDAO {
 
+
+    public boolean isUniqueNumberExists(String uniqueNumber) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM students WHERE unique_number = ?";
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, uniqueNumber);
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Если число найденных записей больше 0, значит номер не уникален
+            }
+        }
+        return false;
+    }
+
     /**
      * Добавляет нового студента в базу данных.
      *
@@ -18,10 +32,13 @@ public class StudentDAO {
      * @throws SQLException если не удалось добавить студента
      */
     public void addStudent(Student student) throws SQLException {
+        if (isUniqueNumberExists(student.getUniqueNumber())) {
+            throw new SQLException("Unique number already exists.");
+        }
         String sql = "INSERT INTO students (first_name, last_name, patronymic, birth_date, group_name, unique_number) " +
                 "VALUES (?,?,?,?,?,?)";
         try (Connection connect = DatabaseConfig.getConnection();
-             PreparedStatement statement = connect.prepareStatement(sql)) {
+             PreparedStatement statement = connect.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, student.getFirstName());
             statement.setString(2, student.getLastName());
             statement.setString(3, student.getPatronymic());
@@ -29,32 +46,38 @@ public class StudentDAO {
             statement.setString(5, student.getGroupName());
             statement.setString(6, student.getUniqueNumber());
             int affectedRows = statement.executeUpdate();
-            if(affectedRows == 0){
-                throw new SQLException("Creating student failed, no rows affected.");
-            }
-
-            try(ResultSet generatedKeys = statement.getGeneratedKeys()){
-                if(generatedKeys.next()){
-                    student.setId(generatedKeys.getInt(1));
-                } else {
-                    throw new SQLException("Creating student failed, no ID obtained");
+            // Получаем сгенерированные ключи
+            if (affectedRows > 0) {
+                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        student.setId(generatedKeys.getInt(1)); // Устанавливаем сгенерированный ID в объекте Student
+                    } else {
+                        throw new SQLException("Creating student failed, no ID obtained.");
+                    }
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Обработка ошибок
         }
     }
+
 
     /**
      * Удаляет студента по уникальному номеру.
      *
-     * @param studentId уникальный номер студента
+     * @param uniqueNumber уникальный номер студента
      * @throws SQLException если не удалось удалить студента
      */
-    public void deleteStudent(int studentId) throws SQLException {
+    public void deleteStudent(String uniqueNumber) throws SQLException {
         String sql = "DELETE FROM students WHERE unique_number = ?";
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, studentId);
-            statement.executeUpdate();
+            statement.setString(1, uniqueNumber);
+            int rowsAffected = statement.executeUpdate();
+            if(rowsAffected == 0){
+                throw new SQLException("No student found with unique number: " + uniqueNumber);
+            }
         }
     }
 
@@ -64,13 +87,13 @@ public class StudentDAO {
      * @return список студентов
      * @throws SQLException если не удалось получить список
      */
-    public List<Student> getAllStudents() throws SQLException{
+    public List<Student> getAllStudents() throws SQLException {
         List<Student> students = new ArrayList<>();
         String sql = "SELECT * FROM students";
         try (Connection connection = DatabaseConfig.getConnection();
              Statement statement = connection.prepareStatement(sql);
-             ResultSet rs = statement.executeQuery(sql)){
-            while (rs.next()){
+             ResultSet rs = statement.executeQuery(sql)) {
+            while (rs.next()) {
                 Student student = new Student();
                 student.setId(rs.getInt("id"));
                 student.setFirstName(rs.getString("first_name"));
