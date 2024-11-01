@@ -12,12 +12,12 @@ public class Student {
     private String firstName;
     private String lastName;
     private String patronymic;
-    private Date birthDate;
+    private String birthDate;
     private String groupName;
     private String uniqueNumber;
 
     //Конструкторы, геттеры и сеттеры. Есть Lombok, но тут реализация как работает под капотом.
-    public Student(int id, String firstName, String lastName, String patronymic, Date birthDate, String groupName) {
+    public Student(int id, String firstName, String lastName, String patronymic, String birthDate, String groupName) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -61,11 +61,11 @@ public class Student {
         this.patronymic = patronymic;
     }
 
-    public Date getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Date birthDate) {
+    public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 
