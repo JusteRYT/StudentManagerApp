@@ -18,7 +18,7 @@ public class StudentDAO {
      * @throws SQLException если не удалось добавить студента
      */
     public void addStudent(Student student) throws SQLException {
-        String sql = "INSERT INTO students (first_name, last_name, patronymic, birth_day, group_name, unique_number) " +
+        String sql = "INSERT INTO students (first_name, last_name, patronymic, birth_date, group_name, unique_number) " +
                 "VALUES (?,?,?,?,?,?)";
         try (Connection connect = DatabaseConfig.getConnection();
              PreparedStatement statement = connect.prepareStatement(sql)) {
