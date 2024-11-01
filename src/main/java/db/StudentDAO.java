@@ -42,7 +42,7 @@ public class StudentDAO {
             statement.setString(1, student.getFirstName());
             statement.setString(2, student.getLastName());
             statement.setString(3, student.getPatronymic());
-            statement.setDate(4, new java.sql.Date(student.getBirthDate().getTime()));
+            statement.setString(4, student.getBirthDate());
             statement.setString(5, student.getGroupName());
             statement.setString(6, student.getUniqueNumber());
             int affectedRows = statement.executeUpdate();
@@ -57,11 +57,9 @@ public class StudentDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            // Обработка ошибок
+            throw new SQLException("Не удалось добавить студента. " + e.getMessage());
         }
     }
-
 
     /**
      * Удаляет студента по уникальному номеру.
@@ -91,7 +89,7 @@ public class StudentDAO {
         List<Student> students = new ArrayList<>();
         String sql = "SELECT * FROM students";
         try (Connection connection = DatabaseConfig.getConnection();
-             Statement statement = connection.prepareStatement(sql);
+             Statement statement = connection.createStatement();
              ResultSet rs = statement.executeQuery(sql)) {
             while (rs.next()) {
                 Student student = new Student();
@@ -99,13 +97,66 @@ public class StudentDAO {
                 student.setFirstName(rs.getString("first_name"));
                 student.setLastName(rs.getString("last_name"));
                 student.setPatronymic(rs.getString("patronymic"));
-                student.setBirthDate(rs.getDate("birth_date"));
+                student.setBirthDate(rs.getDate("birth_date").toString());
                 student.setGroupName(rs.getString("group_name"));
                 student.setUniqueNumber(rs.getString("unique_number"));
                 students.add(student);
             }
         }
         return students;
+    }
+
+    /**
+     * Обновляет информацию о студенте.
+     *
+     * @param student объект Student с обновленной информацией
+     * @throws SQLException если не удалось обновить информацию
+     */
+    public void updateStudent(Student student) throws SQLException {
+        // Начинаем строить запрос
+        StringBuilder sql = new StringBuilder("UPDATE students SET ");
+        List<Object> parameters = new ArrayList<>();
+
+        // Проверяем каждое поле и добавляем в запрос, если оно не null
+        if (student.getFirstName() != null) {
+            sql.append("first_name = ?, ");
+            parameters.add(student.getFirstName());
+        }
+        if (student.getLastName() != null) {
+            sql.append("last_name = ?, ");
+            parameters.add(student.getLastName());
+        }
+        if (student.getPatronymic() != null) {
+            sql.append("patronymic = ?, ");
+            parameters.add(student.getPatronymic());
+        }
+        if (student.getBirthDate() != null) {
+            sql.append("birth_date = ?, ");
+            parameters.add(student.getBirthDate());
+        }
+        if (student.getGroupName() != null) {
+            sql.append("group_name = ?, ");
+            parameters.add(student.getGroupName());
+        }
+
+        // Удаляем последнюю запятую и пробел
+        sql.setLength(sql.length() - 2);
+        sql.append(" WHERE unique_number = ?");
+        parameters.add(student.getUniqueNumber());
+
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql.toString())) {
+
+            // Устанавливаем параметры в PreparedStatement
+            for (int i = 0; i < parameters.size(); i++) {
+                statement.setObject(i + 1, parameters.get(i));
+            }
+
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No student found with unique number: " + student.getUniqueNumber());
+            }
+        }
     }
 }
 
