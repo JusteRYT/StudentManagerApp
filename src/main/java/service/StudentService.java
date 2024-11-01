@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * StudentService - класс, который управляет операциями с данными студентов.
  * Он выполняет бизнес-логику и взаимодействует с DAO для работы с базой данных.
- *
+ * <p>
  * Responsibilities:
  * - Получение списка студентов
  * - Добавление нового студента
@@ -55,7 +55,7 @@ public class StudentService {
      * Обновление информации студента
      *
      * @param student обновленная информация для студента
-     * @throws
+     * @throws SQLException если произошла ошибка доступа к базе данных
      */
     public void updateStudent(Student student) throws SQLException{
         studentDAO.updateStudent(student);
