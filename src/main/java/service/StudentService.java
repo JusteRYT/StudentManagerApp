@@ -44,10 +44,20 @@ public class StudentService {
     /**
      * Удаляет студента из базы данных по уникальному номеру.
      *
-     * @param id уникальный номер студента, которого нужно удалить
+     * @param unique_number уникальный номер студента, которого нужно удалить
      * @throws SQLException если произошла ошибка доступа к базе данных
      */
-    public void deleteStudent(int id) throws SQLException {
-        studentDAO.deleteStudent(id);
+    public void deleteStudent(String unique_number) throws SQLException {
+        studentDAO.deleteStudent(unique_number);
+    }
+
+    /**
+     * Обновление информации студента
+     *
+     * @param student обновленная информация для студента
+     * @throws
+     */
+    public void updateStudent(Student student) throws SQLException{
+        studentDAO.updateStudent(student);
     }
 }
