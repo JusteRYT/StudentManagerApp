@@ -40,7 +40,7 @@ class StudentDAOTest {
 
         try {
             studentDAO.addStudent(student);
-            studentDAO.deleteStudent("67890");
+            studentDAO.deleteStudent(67890);
             List<Student> students = studentDAO.getAllStudents();
             assertTrue(students.stream().noneMatch(s -> "67890".equals(s.getUniqueNumber())));
         } catch (SQLException e) {

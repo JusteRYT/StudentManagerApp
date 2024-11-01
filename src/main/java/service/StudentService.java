@@ -47,7 +47,7 @@ public class StudentService {
      * @param id уникальный номер студента, которого нужно удалить
      * @throws SQLException если произошла ошибка доступа к базе данных
      */
-    public void deleteStudent(String id) throws SQLException {
+    public void deleteStudent(int id) throws SQLException {
         studentDAO.deleteStudent(id);
     }
 }

@@ -17,7 +17,7 @@ public class Student {
     private String uniqueNumber;
 
     //Конструкторы, геттеры и сеттеры. Есть Lombok, но тут реализация как работает под капотом.
-    public Student(int id, String firstName, String lastName, String patronymic, Date birthDate, String groupName, String uniqueNumber) {
+    public Student(int id, String firstName, String lastName, String patronymic, Date birthDate, String groupName) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -26,7 +26,8 @@ public class Student {
         this.groupName = groupName;
         this.uniqueNumber = uniqueNumber;
     }
-    public Student(){}
+    // Конструктор по умолчанию
+    public Student() {}
 
     public int getId() {
         return id;

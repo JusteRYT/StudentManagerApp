@@ -28,22 +28,33 @@ public class StudentDAO {
             statement.setDate(4, new java.sql.Date(student.getBirthDate().getTime()));
             statement.setString(5, student.getGroupName());
             statement.setString(6, student.getUniqueNumber());
-            statement.executeUpdate();
+            int affectedRows = statement.executeUpdate();
+            if(affectedRows == 0){
+                throw new SQLException("Creating student failed, no rows affected.");
+            }
+
+            try(ResultSet generatedKeys = statement.getGeneratedKeys()){
+                if(generatedKeys.next()){
+                    student.setId(generatedKeys.getInt(1));
+                } else {
+                    throw new SQLException("Creating student failed, no ID obtained");
+                }
+            }
         }
     }
 
     /**
      * Удаляет студента по уникальному номеру.
      *
-     * @param uniqueNumber уникальный номер студента
+     * @param studentId уникальный номер студента
      * @throws SQLException если не удалось удалить студента
      */
-    public void deleteStudent(String uniqueNumber) throws SQLException {
+    public void deleteStudent(int studentId) throws SQLException {
         String sql = "DELETE FROM students WHERE unique_number = ?";
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, uniqueNumber);
-            statement.execute();
+            statement.setInt(1, studentId);
+            statement.executeUpdate();
         }
     }
 

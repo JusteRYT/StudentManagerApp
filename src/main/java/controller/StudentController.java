@@ -22,7 +22,7 @@ import java.util.List;
  */
 @WebServlet("/students")
 public class StudentController extends HttpServlet {
-    private StudentService studentService;
+    public StudentService studentService;
 
     /**
      * Инициализация контроллера. Устанавливает соединение с базой данных.
@@ -47,7 +47,7 @@ public class StudentController extends HttpServlet {
      * @throws IOException      если возникает ошибка ввода-вывода.
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         try {
             List<Student> students = studentService.getStudents();
@@ -71,7 +71,7 @@ public class StudentController extends HttpServlet {
      * @throws IOException      если возникает ошибка ввода-вывода.
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         try {
             // Получение параметров из запроса
@@ -108,7 +108,7 @@ public class StudentController extends HttpServlet {
      * @throws IOException      если возникает ошибка ввода-вывода.
      */
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         try {
             // Получение уникального номера студент из URL
@@ -119,12 +119,16 @@ public class StudentController extends HttpServlet {
                 return;
             }
 
-            studentService.deleteStudent(idParam);
+            int id = Integer.parseInt(idParam);
+            studentService.deleteStudent(id);
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write("{\"message\": \"Student deleted successfully\"}");
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("Error deleting student: " + e.getMessage());
+        }catch (NumberFormatException e){
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("idParam error: " + e.getMessage());
         }
     }
 
