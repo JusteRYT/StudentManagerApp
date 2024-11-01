@@ -71,6 +71,7 @@ public class StudentDAO {
                 students.add(student);
             }
         }
+        return students;
     }
 }
 
