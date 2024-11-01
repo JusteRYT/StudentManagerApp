@@ -1,3 +1,4 @@
+import db.DatabaseConfig;
 import db.StudentDAO;
 import model.Student;
 import org.junit.jupiter.api.*;
