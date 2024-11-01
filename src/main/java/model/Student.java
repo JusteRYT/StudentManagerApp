@@ -14,16 +14,7 @@ public class Student {
     private String groupName;
     private String uniqueNumber;
 
-    //Конструкторы, геттеры и сеттеры. Есть Lombok, но тут реализация как работает под капотом.
-    public Student(int id, String firstName, String lastName, String patronymic, String birthDate, String groupName) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.patronymic = patronymic;
-        this.birthDate = birthDate;
-        this.groupName = groupName;
-        this.uniqueNumber = uniqueNumber;
-    }
+    //Конструктор, геттеры и сеттеры. Есть Lombok, но тут реализация как работает под капотом.
     // Конструктор по умолчанию
     public Student() {}
 
