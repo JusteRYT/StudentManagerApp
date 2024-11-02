@@ -60,4 +60,15 @@ public class StudentService {
     public void updateStudent(Student student) throws SQLException{
         studentDAO.updateStudent(student);
     }
+
+    /**
+     * Получение информации о студенте по уникальному номеру.
+     *
+     * @param uniqueNumber уникальный идентификатор для студента.
+     * @return объект студента, если найден, иначе null.
+     * @throws SQLException если произошла ошибка при обращении к базе данных.
+     */
+    public Student getStudentsByUniqueNumber(String uniqueNumber) throws SQLException {
+       return studentDAO.getStudentByUnique(uniqueNumber);
+    }
 }
