@@ -160,9 +160,13 @@ public class StudentDAO {
     }
 
     /**
-     * Поиск студента по уникальному идентификатору
+     * Поиск студента по уникальному идентификатору.
+     *
+     * @param uniqueNumber уникальный идентификатор студента.
+     * @return объект студента, если найден, иначе null.
+     * @throws SQLException если произошла ошибка при обращении к базе данных.
      */
-    public void getStudentByUnique(String uniqueNumber) throws SQLException{
+    public Student getStudentByUnique(String uniqueNumber) throws SQLException{
         String sql = "SELECT * FROM students WHERE unique_number = ?";
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
