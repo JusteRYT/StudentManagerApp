@@ -181,7 +181,7 @@ public class StudentDAO {
                         resultSet.getString("first_name"),
                         resultSet.getString("last_name"),
                         resultSet.getString("patronymic"),
-                        resultSet.getDate("birth_date"),
+                        resultSet.getString("birth_date"),
                         resultSet.getString("group_name")
                 );
             }
