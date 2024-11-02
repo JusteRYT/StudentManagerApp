@@ -10,7 +10,7 @@ $(document).ready(function() {
 
 function loadStudents() {
     $.ajax({
-        url: 'http://localhost:8080/students', // Убедитесь, что этот URL соответствует вашему серверу
+        url: 'http://localhost:8080/api/students/', // Убедитесь, что этот URL соответствует вашему серверу
         method: 'GET',
         success: function(data) {
             $('#student-list').empty(); // Очищаем текущий список
@@ -34,8 +34,10 @@ function addStudent() {
         uniqueNumber: $('#unique-number').val()
     };
 
+    console.log("Данные студента:", studentData); // Отладочная информация
+
     $.ajax({
-        url: 'http://localhost:8080/students',
+        url: 'http://localhost:8080/api/students/',
         method: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(studentData),
