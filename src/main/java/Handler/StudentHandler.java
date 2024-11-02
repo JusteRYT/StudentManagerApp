@@ -60,7 +60,6 @@ public class StudentHandler implements HttpHandler {
         }
 
         // Отправка ответа
-        System.out.println("Sending response: " + response); // Для отладки
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
         exchange.sendResponseHeaders(responseCode, response.getBytes().length);
         OutputStream os = exchange.getResponseBody();
@@ -76,9 +75,7 @@ public class StudentHandler implements HttpHandler {
     private String getStudents() throws SQLException {
         List<Student> students = studentService.getStudents(); // Получаем список студентов
         Gson gson = new Gson();
-        String jsonResponse = gson.toJson(students); // Преобразуем список студентов в JSON
-        System.out.println("JSON Response: " + jsonResponse); // Для отладки
-        return jsonResponse; // Возвращаем JSON
+        return gson.toJson(students); // Возвращаем JSON
     }
 
     /**
