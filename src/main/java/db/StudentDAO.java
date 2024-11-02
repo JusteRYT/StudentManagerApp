@@ -158,5 +158,31 @@ public class StudentDAO {
             }
         }
     }
+
+    /**
+     * Поиск студента по уникальному идентификатору
+     */
+    public void getStudentByUnique(String uniqueNumber) throws SQLException{
+        String sql = "SELECT * FROM students WHERE unique_number = ?";
+        try (Connection connection = DatabaseConfig.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, uniqueNumber);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                // Создаем объект студента из результатов запроса
+                return new Student(
+                        resultSet.getString("unique_number"),
+                        resultSet.getString("first_name"),
+                        resultSet.getString("last_name"),
+                        resultSet.getString("patronymic"),
+                        resultSet.getDate("birth_date"),
+                        resultSet.getString("group_name")
+                );
+            }
+        }
+        return null; // Если студент не найден
+    }
 }
 
