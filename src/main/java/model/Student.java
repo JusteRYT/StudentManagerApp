@@ -1,5 +1,7 @@
 package model;
 
+import java.sql.Date;
+
 /**
  * Класс, представляющий данные студента.
  */
@@ -17,6 +19,10 @@ public class Student {
     //Конструктор, геттеры и сеттеры. Есть Lombok, но тут реализация как работает под капотом.
     // Конструктор по умолчанию
     public Student() {}
+
+    //Конструктор для метода getStudentByUniqueNumber
+    public Student(String uniqueNumber, String firstName, String lastName, String patronymic, Date birthDate, String groupName) {
+    }
 
     public int getId() {
         return id;
