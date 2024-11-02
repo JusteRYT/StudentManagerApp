@@ -3,28 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Manager</title>
     <link rel="stylesheet" href="styles.css">
+    <title>Student Manager</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="app.js" defer></script>
 </head>
 <body>
     <h1>Управление студентами</h1>
-    <div>
-        <h2>Добавить студента</h2>
-        <form id="add-student-form">
-            <input type="text" id="first-name" placeholder="Имя" required>
-            <input type="text" id="last-name" placeholder="Фамилия" required>
-            <input type="text" id="patronymic" placeholder="Отчество" required>
-            <input type="date" id="birth-date" required>
-            <input type="text" id="group-name" placeholder="Группа" required>
-            <input type="text" id="unique-number" placeholder="Уникальный номер" required>
-            <button type="submit">Добавить студента</button>
-        </form>
+
+    <h2>Добавить студента</h2>
+    <form id="add-student-form">
+        <input type="text" id="add-unique-number" placeholder="Уникальный номер" required>
+        <input type="text" id="add-first-name" placeholder="Имя" required>
+        <input type="text" id="add-last-name" placeholder="Фамилия" required>
+        <input type="text" id="add-patronymic" placeholder="Отчество" required>
+        <input type="date" id="add-birth-date" required>
+        <input type="text" id="add-group-name" placeholder="Группа" required>
+        <button type="submit">Добавить</button>
+    </form>
+
+    <h2>Список студентов</h2>
+    <table id="student-list">
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Отчество</th>
+                <th>Дата рождения</th>
+                <th>Группа</th>
+                <th>Уникальный номер</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Данные студентов будут загружены сюда -->
+        </tbody>
+    </table>
+
+    <!-- Форма обновления студента (по умолчанию скрыта) -->
+    <div id="popup-overlay" style="display:none;">
+        <div id="update-student-popup">
+            <h2>Обновить информацию о студенте</h2>
+            <form id="update-student-form">
+                <input type="text" id="update-unique-number" placeholder="Уникальный номер" required>
+                <input type="text" id="update-first-name" placeholder="Имя" required>
+                <input type="text" id="update-last-name" placeholder="Фамилия" required>
+                <input type="text" id="update-patronymic" placeholder="Отчество" required>
+                <input type="date" id="update-birth-date" required>
+                <input type="text" id="update-group-name" placeholder="Группа" required>
+                <button type="submit">Обновить</button>
+                <button type="button" id="close-popup">Закрыть</button>
+            </form>
+        </div>
     </div>
-    <div>
-        <h2>Список студентов</h2>
-        <ul id="student-list"></ul>
-    </div>
+
+    <script src="app.js"></script> <!-- Подключаем JavaScript -->
 </body>
 </html>
