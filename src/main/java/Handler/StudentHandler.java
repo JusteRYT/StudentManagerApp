@@ -31,6 +31,16 @@ public class StudentHandler implements HttpHandler {
         String response;
         int responseCode = 200; // По умолчанию - OK
 
+        // Установка CORS заголовков
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*"); // Разрешает доступ с любого источника
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); // Разрешенные методы
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type"); // Разрешенные заголовки
+
+        if ("OPTIONS".equals(exchange.getRequestMethod())) {
+            exchange.sendResponseHeaders(204, -1); // Отправляем статус 204 No Content
+            return; // Завершаем обработку
+        }
+
         try {
             String method = exchange.getRequestMethod();
             response = switch (method) {
