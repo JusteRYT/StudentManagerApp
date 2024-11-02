@@ -43,8 +43,16 @@ public class StudentHandler implements HttpHandler {
 
         try {
             String method = exchange.getRequestMethod();
+            String path = exchange.getRequestURI().getPath();
             response = switch (method) {
-                case "GET" -> getStudents();
+                case "GET" -> {
+                    // Проверяем, запрашивается ли конкретный студент по уникальному номеру
+                    if (path.matches("/api/students/\\w+")) {
+                        yield getStudentByUniqueNumber(exchange); // Получаем студента по уникальному номеру
+                    } else {
+                        yield getStudents(); // Получаем всех студентов
+                    }
+                }
                 case "POST" -> addStudent(exchange);
                 case "DELETE" -> deleteStudent(exchange);
                 case "PUT" -> updateStudent(exchange);
@@ -131,5 +139,26 @@ public class StudentHandler implements HttpHandler {
         Student student = gson.fromJson(requestBody, Student.class);
         studentService.updateStudent(student);
         return "{\"message\": \"Student updated successfully\"}";
+    }
+
+    /**
+     * Обрабатывает запрос GET для получения данных о студенте по уникальному номеру.
+     *
+     * @param exchange HttpExchange объект, содержащий запрос и ответ.
+     * @return JSON строка с данными студента, если найден, иначе отправляет статус 404.
+     * @throws IOException если произошла ошибка ввода-вывода.
+     * @throws SQLException если произошла ошибка при обращении к базе данных.
+     */
+    private String getStudentByUniqueNumber(HttpExchange exchange) throws IOException, SQLException{
+        String uniqueNumber = exchange.getRequestURI().getPath().split("/")[3];
+        Student student = studentService.getStudentsByUniqueNumber(uniqueNumber);
+
+        if(student != null){
+            Gson gson = new Gson();
+            return gson.toJson(student);
+        } else {
+            exchange.sendResponseHeaders(404, -1);
+            return null;
+        }
     }
 }
