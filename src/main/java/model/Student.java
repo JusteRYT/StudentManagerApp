@@ -21,7 +21,13 @@ public class Student {
     public Student() {}
 
     //Конструктор для метода getStudentByUniqueNumber
-    public Student(String uniqueNumber, String firstName, String lastName, String patronymic, Date birthDate, String groupName) {
+    public Student(String uniqueNumber, String firstName, String lastName, String patronymic, String birthDate, String groupName) {
+        this.uniqueNumber = uniqueNumber;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.patronymic = patronymic;
+        this.birthDate = birthDate;
+        this.groupName = groupName;
     }
 
     public int getId() {
