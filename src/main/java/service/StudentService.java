@@ -13,12 +13,14 @@ import java.util.List;
  * - Получение списка студентов
  * - Добавление нового студента
  * - Удаление студента по уникальному номеру
+ * - Обновление информации о студенте
+ * - Получение студента по уникальному номеру
  */
 public class StudentService {
-    private final StudentDAO studentDAO;
+    private final StudentDAO studentDAO; // DAO для работы с данными студентов
 
     public StudentService() {
-        this.studentDAO = new StudentDAO();
+        this.studentDAO = new StudentDAO(); // Инициализация DAO
     }
 
     /**
@@ -72,6 +74,13 @@ public class StudentService {
        return studentDAO.getStudentByUnique(uniqueNumber);
     }
 
+    /**
+     * Проверяет, существует ли уникальный номер студента в базе данных.
+     *
+     * @param uniqueNumber уникальный номер студента для проверки
+     * @return true, если уникальный номер существует, иначе false
+     * @throws SQLException если произошла ошибка доступа к базе данных
+     */
     public boolean isUniqueNumberExists(String uniqueNumber) throws SQLException{
         return studentDAO.isUniqueNumberExists(uniqueNumber);
     }
