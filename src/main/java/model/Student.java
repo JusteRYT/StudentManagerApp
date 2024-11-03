@@ -7,20 +7,29 @@ import java.sql.Date;
  */
 public class Student {
 
-
-    private int id;
-    private String firstName;
-    private String lastName;
-    private String patronymic;
-    private String birthDate;
-    private String groupName;
-    private String uniqueNumber;
+    private int id; // Уникальный идентификатор студента
+    private String firstName; // Имя студента
+    private String lastName; // Фамилия студента
+    private String patronymic; // Отчество студента
+    private String birthDate; // Дата рождения студента в формате YYYY-MM-DD
+    private String groupName; // Название группы студента
+    private String uniqueNumber; // Уникальный номер студента
 
     //Конструктор, геттеры и сеттеры. Есть Lombok, но тут реализация как работает под капотом.
     // Конструктор по умолчанию
     public Student() {}
 
-    //Конструктор для метода getStudentByUniqueNumber
+
+    /**
+     * Конструктор для создания объекта Student с уникальным номером и данными о студенте.
+     *
+     * @param uniqueNumber Уникальный номер студента.
+     * @param firstName Имя студента.
+     * @param lastName Фамилия студента.
+     * @param patronymic Отчество студента.
+     * @param birthDate Дата рождения студента в формате YYYY-MM-DD.
+     * @param groupName Название группы студента.
+     */
     public Student(String uniqueNumber, String firstName, String lastName, String patronymic, String birthDate, String groupName) {
         this.uniqueNumber = uniqueNumber;
         this.firstName = firstName;
