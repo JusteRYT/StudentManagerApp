@@ -1,6 +1,6 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f8;
     margin: 0;
     padding: 20px;
 }
@@ -9,38 +9,76 @@ h1, h2 {
     color: #333;
 }
 
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
 form {
     margin-bottom: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
 input {
-    margin: 5px;
+    margin: 5px 0 15px 0; /* Добавлены отступы сверху и снизу */
     padding: 10px;
-    width: calc(100% - 22px);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%; /* Полная ширина */
+    box-sizing: border-box; /* Учитываем отступы и границы */
 }
 
 button {
     padding: 10px 15px;
-    background-color: #28a745;
+    background-color: #007bff; /* Синий цвет по умолчанию */
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: #3094ff; /* Цвет при наведении */
+}
+
+.submit-button {
+    background-color: #28a745; /* Зеленая кнопка для добавления */
+}
+
+.submit-button:hover {
+    background-color: #35ca55;
+}
+
+.cancel-button {
+    background-color: #dc3545; /* Красная кнопка для отмены */
+    margin-left: 10px;
+}
+
+.cancel-button:hover {
+    background-color: #c82333;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    background-color: #ffffff; /* Цвет фона таблицы */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Тень для таблицы */
 }
 
 th, td {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 12px;
     text-align: left;
 }
 
@@ -54,11 +92,11 @@ th {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5); /* полупрозрачный черный фон */
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* чтобы окно было над остальным содержимым */
+    z-index: 1000;
 }
 
 #update-student-form {
@@ -66,4 +104,19 @@ th {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Отдельная настройка для кнопки генерации уникального номера */
+#generate-unique-number {
+    background-color: #075eff; /* Синий цвет */
+    border-radius: 10px;
+    margin-left: 15px; /* Отступ от поля ввода */
+    margin-right: 5px; /* Отступ справа */
+    margin-bottom: 10px;
+    padding: 5px 10px; /* Уменьшенный внутренний отступ */
+    font-size: 14px; /* Размер шрифта кнопки */
+}
+
+#generate-unique-number:hover {
+    background-color: #2e89f0; /* Темно-желтый цвет при наведении */
 }

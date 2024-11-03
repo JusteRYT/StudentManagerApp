@@ -12,13 +12,16 @@
 
     <h2>Добавить студента</h2>
     <form id="add-student-form">
-        <input type="text" id="add-unique-number" placeholder="Уникальный номер" required>
+        <div class="input-group">
+            <input type="text" id="add-unique-number" placeholder="Уникальный номер" readonly>
+            <button type="button" id="generate-unique-number">🎲 Генерировать номер</button>
+        </div>
         <input type="text" id="add-first-name" placeholder="Имя" required>
         <input type="text" id="add-last-name" placeholder="Фамилия" required>
         <input type="text" id="add-patronymic" placeholder="Отчество" required>
         <input type="date" id="add-birth-date" required>
         <input type="text" id="add-group-name" placeholder="Группа" required>
-        <button type="submit">Добавить</button>
+        <button type="submit" class="submit-button">Добавить</button>
     </form>
 
     <h2>Список студентов</h2>
@@ -39,37 +42,37 @@
         </tbody>
     </table>
 
- <!-- Форма обновления студента (по умолчанию скрыта) -->
- <div id="popup-overlay" style="display: none;">
-    <form id="update-student-form">
-        <p>Уникальный номер: <span id="display-unique-number"></span></p>
-        <input type="hidden" id="update-unique-number"> <!-- Скрытое поле для уникального номера -->
-        <p>Текущее имя: <span id="current-first-name"></span></p>
-        <p>Текущая фамилия: <span id="current-last-name"></span></p>
-        <p>Текущее отчество: <span id="current-patronymic"></span></p>
-        <p>Текущая дата рождения: <span id="current-birth-date"></span></p>
-        <p>Текущая группа: <span id="current-group-name"></span></p>
-        
-        <!-- Поля ввода для обновления данных -->
-        <label>Новое имя:</label>
-        <input type="text" id="update-first-name" placeholder="Новое имя">
-        
-        <label>Новая фамилия:</label>
-        <input type="text" id="update-last-name" placeholder="Новая фамилия">
-        
-        <label>Новое отчество:</label>
-        <input type="text" id="update-patronymic" placeholder="Новое отчество">
-        
-        <label>Новая дата рождения:</label>
-        <input type="date" id="update-birth-date" placeholder="Новая дата рождения">
-        
-        <label>Новая группа:</label>
-        <input type="text" id="update-group-name" placeholder="Новая группа">
-        
-        <button type="submit">Сохранить</button>
-        <button type="button" id="close-popup">Отмена</button>
-    </form>
-</div>
+    <!-- Форма обновления студента (по умолчанию скрыта) -->
+    <div id="popup-overlay" style="display: none;">
+        <form id="update-student-form">
+            <p>Уникальный номер: <span id="display-unique-number"></span></p>
+            <input type="hidden" id="update-unique-number"> <!-- Скрытое поле для уникального номера -->
+            <p>Текущее имя: <span id="current-first-name"></span></p>
+            <p>Текущая фамилия: <span id="current-last-name"></span></p>
+            <p>Текущее отчество: <span id="current-patronymic"></span></p>
+            <p>Текущая дата рождения: <span id="current-birth-date"></span></p>
+            <p>Текущая группа: <span id="current-group-name"></span></p>
+            
+            <!-- Поля ввода для обновления данных -->
+            <label>Новое имя:</label>
+            <input type="text" id="update-first-name" placeholder="Новое имя">
+            
+            <label>Новая фамилия:</label>
+            <input type="text" id="update-last-name" placeholder="Новая фамилия">
+            
+            <label>Новое отчество:</label>
+            <input type="text" id="update-patronymic" placeholder="Новое отчество">
+            
+            <label>Новая дата рождения:</label>
+            <input type="date" id="update-birth-date" placeholder="Новая дата рождения">
+            
+            <label>Новая группа:</label>
+            <input type="text" id="update-group-name" placeholder="Новая группа">
+            
+            <button type="submit" class="submit-button">Сохранить</button>
+            <button type="button" id="close-popup" class="cancel-button">Отмена</button>
+        </form>
+    </div>
 
     <script src="app.js"></script> <!-- Подключаем JavaScript -->
 </body>

@@ -33,10 +33,28 @@ $(document).ready(function() {
         }
     });
 
+    $('#generate-unique-number').click(function() {
+        generateUniqueNumber(); // Вызов функции генерации уникального номера
+    });
+
     $('#close-popup').click(function() {
         $('#popup-overlay').hide();
     });
 });
+
+// Функция для генерации уникального номера
+function generateUniqueNumber() {
+    $.ajax({
+        url: 'http://localhost:8080/api/students/generateUniqueNumber', // URL для получения уникального номера
+        method: 'GET',
+        success: function(data) {
+            $('#add-unique-number').val(data.uniqueNumber); // Устанавливаем уникальный номер в поле ввода
+        },
+        error: function(xhr) {
+            alert('Ошибка генерации уникального номера: ' + xhr.responseText);
+        }
+    });
+}
 
 function loadStudents() {
     $.ajax({
