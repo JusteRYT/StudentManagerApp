@@ -113,11 +113,16 @@ public class StudentDAO {
      * @throws SQLException если не удалось обновить информацию
      */
     public void updateStudent(Student student) throws SQLException {
-        // Начинаем строить запрос
+        // Проверяем, что уникальный номер не пустой
+        if (student.getUniqueNumber() == null) {
+            throw new SQLException("Unique number cannot be null.");
+        }
+
+        // Строим запрос
         StringBuilder sql = new StringBuilder("UPDATE students SET ");
         List<Object> parameters = new ArrayList<>();
 
-        // Проверяем каждое поле и добавляем в запрос, если оно не null
+        // Проверяем каждое поле и добавляем его в запрос, если оно не null
         if (student.getFirstName() != null) {
             sql.append("first_name = ?, ");
             parameters.add(student.getFirstName());
@@ -139,15 +144,16 @@ public class StudentDAO {
             parameters.add(student.getGroupName());
         }
 
-        // Удаляем последнюю запятую и пробел
+        // Убираем последнюю запятую
         sql.setLength(sql.length() - 2);
         sql.append(" WHERE unique_number = ?");
         parameters.add(student.getUniqueNumber());
 
+        // Выполняем запрос
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql.toString())) {
 
-            // Устанавливаем параметры в PreparedStatement
+            // Устанавливаем параметры для PreparedStatement
             for (int i = 0; i < parameters.size(); i++) {
                 statement.setObject(i + 1, parameters.get(i));
             }

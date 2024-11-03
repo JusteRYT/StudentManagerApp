@@ -109,13 +109,13 @@ public class StudentHandler implements HttpHandler {
      * @throws SQLException если произошла ошибка при обращении к базе данных
      */
     private String deleteStudent(HttpExchange exchange) throws SQLException {
-        String query = exchange.getRequestURI().getQuery();
-        String uniqueNumber = null;
+        // Получаем уникальный номер из пути запроса
+        String path = exchange.getRequestURI().getPath();
+        String[] pathParts = path.split("/");
+        String uniqueNumber = pathParts[pathParts.length - 1];
+        System.out.println(uniqueNumber);
 
-        // Извлекаем уникальный номер из параметров запроса
-        if (query != null && query.startsWith("unique_number=")) {
-            uniqueNumber = query.split("=")[1];
-        }
+
 
         if (uniqueNumber != null) {
             studentService.deleteStudent(uniqueNumber);
@@ -133,11 +133,28 @@ public class StudentHandler implements HttpHandler {
      * @throws SQLException если произошла ошибка при обращении к базе данных
      */
     private String updateStudent(HttpExchange exchange) throws IOException, SQLException {
+        // Получаем уникальный номер из пути запроса
+        String path = exchange.getRequestURI().getPath();
+        String[] pathParts = path.split("/");
+        String uniqueNumber = pathParts[pathParts.length - 1];
+        System.out.println(uniqueNumber);
+        // Проверяем, что уникальный номер является числом
+        if (uniqueNumber == null || uniqueNumber.isEmpty()) {
+            throw new IOException("Unique number is missing in the request URL.");
+        }
+
+        // Чтение тела запроса
         InputStream is = exchange.getRequestBody();
         String requestBody = new String(is.readAllBytes());
         Gson gson = new Gson();
-        Student student = gson.fromJson(requestBody, Student.class);
-        studentService.updateStudent(student);
+
+        // Преобразуем JSON в объект Student
+        Student studentData = gson.fromJson(requestBody, Student.class);
+        studentData.setUniqueNumber(uniqueNumber); // Устанавливаем уникальный номер
+
+        // Обновляем студента
+        studentService.updateStudent(studentData);
+
         return "{\"message\": \"Student updated successfully\"}";
     }
 
