@@ -61,7 +61,7 @@ th {
     z-index: 1000; /* чтобы окно было над остальным содержимым */
 }
 
-#update-student-popup {
+#update-student-form {
     background: white;
     padding: 20px;
     border-radius: 8px;
