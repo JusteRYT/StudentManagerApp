@@ -71,4 +71,8 @@ public class StudentService {
     public Student getStudentsByUniqueNumber(String uniqueNumber) throws SQLException {
        return studentDAO.getStudentByUnique(uniqueNumber);
     }
+
+    public boolean isUniqueNumberExists(String uniqueNumber) throws SQLException{
+        return studentDAO.isUniqueNumberExists(uniqueNumber);
+    }
 }

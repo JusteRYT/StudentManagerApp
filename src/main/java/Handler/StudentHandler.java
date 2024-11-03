@@ -46,8 +46,9 @@ public class StudentHandler implements HttpHandler {
             String path = exchange.getRequestURI().getPath();
             response = switch (method) {
                 case "GET" -> {
-                    // Проверяем, запрашивается ли конкретный студент по уникальному номеру
-                    if (path.matches("/api/students/\\w+")) {
+                    if (path.equals("/api/students/generateUniqueNumber")) {
+                        yield generateUniqueNumber(exchange); // Вызов метода для генерации номера
+                    } else if (path.matches("/api/students/\\w+")) {
                         yield getStudentByUniqueNumber(exchange); // Получаем студента по уникальному номеру
                     } else {
                         yield getStudents(); // Получаем всех студентов
@@ -174,5 +175,22 @@ public class StudentHandler implements HttpHandler {
             exchange.sendResponseHeaders(404, -1);
             return null;
         }
+    }
+
+    /**
+     * Генерирует уникальный номер для нового студента и проверяет его уникальность.
+     *
+     * @param exchange HttpExchange объект с запросом
+     * @return JSON строка с уникальным номером
+     * @throws IOException если произошла ошибка при ответе
+     * @throws SQLException если произошла ошибка при обращении к базе данных
+     */
+    private String generateUniqueNumber(HttpExchange exchange) throws IOException, SQLException {
+        String uniqueNumber;
+        do {
+            uniqueNumber = String.valueOf((int) (Math.random() * 1_000_000)); // Генерация случайного номера
+        } while (studentService.isUniqueNumberExists(uniqueNumber)); // Проверка уникальности
+
+        return "{\"uniqueNumber\": \"" + uniqueNumber + "\"}";
     }
 }
