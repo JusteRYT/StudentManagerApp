@@ -113,9 +113,6 @@ public class StudentHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String[] pathParts = path.split("/");
         String uniqueNumber = pathParts[pathParts.length - 1];
-        System.out.println(uniqueNumber);
-
-
 
         if (uniqueNumber != null) {
             studentService.deleteStudent(uniqueNumber);
