@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * StudentHandler обрабатывает HTTP-запросы для управления данными студентов.
@@ -20,6 +22,7 @@ import java.util.List;
  */
 public class StudentHandler implements HttpHandler {
     private final StudentService studentService = new StudentService();
+    private static final Logger logger = Logger.getLogger(StudentHandler.class.getName());
 
     /**
      * Обрабатывает HTTP-запросы, направленные на /api/students.
@@ -32,28 +35,18 @@ public class StudentHandler implements HttpHandler {
         int responseCode = 200; // По умолчанию - OK
 
         // Установка CORS заголовков
-        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*"); // Разрешает доступ с любого источника
-        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); // Разрешенные методы
-        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type"); // Разрешенные заголовки
+        setupCORS(exchange);
 
         if ("OPTIONS".equals(exchange.getRequestMethod())) {
-            exchange.sendResponseHeaders(204, -1); // Отправляем статус 204 No Content
-            return; // Завершаем обработку
+            exchange.sendResponseHeaders(204, -1);
+            return;
         }
 
         try {
             String method = exchange.getRequestMethod();
             String path = exchange.getRequestURI().getPath();
             response = switch (method) {
-                case "GET" -> {
-                    if (path.equals("/api/students/generateUniqueNumber")) {
-                        yield generateUniqueNumber(exchange); // Вызов метода для генерации номера
-                    } else if (path.matches("/api/students/\\w+")) {
-                        yield getStudentByUniqueNumber(exchange); // Получаем студента по уникальному номеру
-                    } else {
-                        yield getStudents(); // Получаем всех студентов
-                    }
-                }
+                case "GET" -> handleGetRequest(path, exchange);
                 case "POST" -> addStudent(exchange);
                 case "DELETE" -> deleteStudent(exchange);
                 case "PUT" -> updateStudent(exchange);
@@ -65,10 +58,36 @@ public class StudentHandler implements HttpHandler {
         } catch (SQLException e) {
             responseCode = 500; // Внутренняя ошибка сервера
             response = "Error: " + e.getMessage();
-            exchange.getResponseHeaders().add("Content-Type", "text/plain");
+            logger.log(Level.SEVERE, "Database error: ", e);
+        } catch (IOException e) {
+            responseCode = 400; // Плохой запрос
+            response = "Error: " + e.getMessage();
+            logger.log(Level.SEVERE, "IO error: ", e);
         }
 
-        // Отправка ответа
+        sendResponse(exchange, responseCode, response);
+    }
+
+    /**
+     * Устанавливает CORS заголовки для разрешения запросов с других источников.
+     *
+     * @param exchange Объект HttpExchange, представляющий HTTP-запрос.
+     */
+    private void setupCORS(HttpExchange exchange) {
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+    }
+
+    /**
+     * Отправляет ответ клиенту с заданным кодом состояния и сообщением.
+     *
+     * @param exchange    Объект HttpExchange, представляющий HTTP-запрос.
+     * @param responseCode Код состояния ответа.
+     * @param response     Сообщение ответа в формате JSON.
+     * @throws IOException В случае ошибки ввода-вывода.
+     */
+    private void sendResponse(HttpExchange exchange, int responseCode, String response) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
         exchange.sendResponseHeaders(responseCode, response.getBytes().length);
         OutputStream os = exchange.getResponseBody();
@@ -77,44 +96,69 @@ public class StudentHandler implements HttpHandler {
     }
 
     /**
-     * Обрабатывает запрос GET, возвращая список всех студентов в формате JSON.
-     * @return JSON строка с данными всех студентов
-     * @throws SQLException если произошла ошибка при обращении к базе данных
+     * Обрабатывает GET-запросы в зависимости от URL.
+     *
+     * @param path    Путь запроса.
+     * @param exchange Объект HttpExchange, представляющий HTTP-запрос.
+     * @return Ответ в формате JSON.
+     * @throws SQLException В случае ошибки базы данных.
+     * @throws IOException  В случае ошибки ввода-вывода.
      */
-    private String getStudents() throws SQLException {
-        List<Student> students = studentService.getStudents(); // Получаем список студентов
-        Gson gson = new Gson();
-        return gson.toJson(students); // Возвращаем JSON
+    private String handleGetRequest(String path, HttpExchange exchange) throws SQLException, IOException {
+        return switch (path) {
+            case "/api/students/generateUniqueNumber" -> generateUniqueNumber(exchange);
+            case "/api/students/" -> getStudents();
+            default -> getStudentByUniqueNumber(exchange);
+        };
     }
 
     /**
-     * Обрабатывает запрос POST для добавления нового студента.
-     * @param exchange HttpExchange объект с запросом
-     * @return JSON строка с сообщением о результатах добавления
-     * @throws IOException если произошла ошибка чтения запроса
-     * @throws SQLException если произошла ошибка при обращении к базе данных
+     * Получает список всех студентов из базы данных.
+     *
+     * @return Список студентов в формате JSON.
+     * @throws SQLException В случае ошибки базы данных.
+     */
+    private String getStudents() throws SQLException {
+        List<Student> students = studentService.getStudents();
+        return new Gson().toJson(students);
+    }
+
+    /**
+     * Добавляет нового студента в базу данных.
+     *
+     * @param exchange Объект HttpExchange, представляющий HTTP-запрос.
+     * @return Сообщение об успешном добавлении студента в формате JSON.
+     * @throws IOException  В случае ошибки ввода-вывода.
+     * @throws SQLException В случае ошибки базы данных.
      */
     private String addStudent(HttpExchange exchange) throws IOException, SQLException {
-        InputStream is = exchange.getRequestBody();
-        String requestBody = new String(is.readAllBytes());
-        Gson gson = new Gson();
-        Student student = gson.fromJson(requestBody, Student.class);
+        Student student = parseStudentFromRequest(exchange);
         studentService.addStudent(student);
         return "{\"message\": \"Student added successfully\"}";
     }
 
     /**
-     * Обрабатывает запрос DELETE для удаления студента по уникальному номеру.
-     * @param exchange HttpExchange объект с запросом
-     * @return JSON строка с сообщением о результатах удаления
-     * @throws SQLException если произошла ошибка при обращении к базе данных
+     * Парсит объект студента из тела запроса.
+     *
+     * @param exchange Объект HttpExchange, представляющий HTTP-запрос.
+     * @return Объект Student.
+     * @throws IOException В случае ошибки ввода-вывода.
+     */
+    private Student parseStudentFromRequest(HttpExchange exchange) throws IOException {
+        InputStream is = exchange.getRequestBody();
+        String requestBody = new String(is.readAllBytes());
+        return new Gson().fromJson(requestBody, Student.class);
+    }
+
+    /**
+     * Удаляет студента по уникальному номеру.
+     *
+     * @param exchange Объект HttpExchange, представляющий HTTP-запрос.
+     * @return Сообщение об успешном удалении студента в формате JSON.
+     * @throws SQLException В случае ошибки базы данных.
      */
     private String deleteStudent(HttpExchange exchange) throws SQLException {
-        // Получаем уникальный номер из пути запроса
-        String path = exchange.getRequestURI().getPath();
-        String[] pathParts = path.split("/");
-        String uniqueNumber = pathParts[pathParts.length - 1];
-
+        String uniqueNumber = extractUniqueNumberFromPath(exchange);
         if (uniqueNumber != null) {
             studentService.deleteStudent(uniqueNumber);
             return "{\"message\": \"Student deleted successfully\"}";
@@ -124,72 +168,70 @@ public class StudentHandler implements HttpHandler {
     }
 
     /**
-     * Обрабатывает запрос PUT для обновления данных студента.
-     * @param exchange HttpExchange объект с запросом
-     * @return JSON строка с сообщением о результатах обновления
-     * @throws IOException если произошла ошибка чтения запроса
-     * @throws SQLException если произошла ошибка при обращении к базе данных
+     * Обновляет информацию о студенте.
+     *
+     * @param exchange Объект HttpExchange, представляющий HTTP-запрос.
+     * @return Сообщение об успешном обновлении студента в формате JSON.
+     * @throws IOException  В случае ошибки ввода-вывода.
+     * @throws SQLException В случае ошибки базы данных.
      */
     private String updateStudent(HttpExchange exchange) throws IOException, SQLException {
-        // Получаем уникальный номер из пути запроса
-        String path = exchange.getRequestURI().getPath();
-        String[] pathParts = path.split("/");
-        String uniqueNumber = pathParts[pathParts.length - 1];
-        System.out.println(uniqueNumber);
-        // Проверяем, что уникальный номер является числом
+        String uniqueNumber = extractUniqueNumberFromPath(exchange);
         if (uniqueNumber == null || uniqueNumber.isEmpty()) {
             throw new IOException("Unique number is missing in the request URL.");
         }
 
-        // Чтение тела запроса
-        InputStream is = exchange.getRequestBody();
-        String requestBody = new String(is.readAllBytes());
-        Gson gson = new Gson();
-
-        // Преобразуем JSON в объект Student
-        Student studentData = gson.fromJson(requestBody, Student.class);
-        studentData.setUniqueNumber(uniqueNumber); // Устанавливаем уникальный номер
-
-        // Обновляем студента
+        Student studentData = parseStudentFromRequest(exchange);
+        studentData.setUniqueNumber(uniqueNumber);
         studentService.updateStudent(studentData);
-
         return "{\"message\": \"Student updated successfully\"}";
     }
 
     /**
-     * Обрабатывает запрос GET для получения данных о студенте по уникальному номеру.
+     * Извлекает уникальный номер студента из пути запроса.
      *
-     * @param exchange HttpExchange объект, содержащий запрос и ответ.
-     * @return JSON строка с данными студента, если найден, иначе отправляет статус 404.
-     * @throws IOException если произошла ошибка ввода-вывода.
-     * @throws SQLException если произошла ошибка при обращении к базе данных.
+     * @param exchange Объект HttpExchange, представляющий HTTP-запрос.
+     * @return Уникальный номер студента.
      */
-    private String getStudentByUniqueNumber(HttpExchange exchange) throws IOException, SQLException{
-        String uniqueNumber = exchange.getRequestURI().getPath().split("/")[3];
+    private String extractUniqueNumberFromPath(HttpExchange exchange) {
+        String path = exchange.getRequestURI().getPath();
+        String[] pathParts = path.split("/");
+        return pathParts[pathParts.length - 1];
+    }
+
+    /**
+     * Получает информацию о студенте по уникальному номеру.
+     *
+     * @param exchange Объект HttpExchange, представляющий HTTP-запрос.
+     * @return Информация о студенте в формате JSON.
+     * @throws IOException  В случае ошибки ввода-вывода.
+     * @throws SQLException В случае ошибки базы данных.
+     */
+    private String getStudentByUniqueNumber(HttpExchange exchange) throws IOException, SQLException {
+        String uniqueNumber = extractUniqueNumberFromPath(exchange);
         Student student = studentService.getStudentsByUniqueNumber(uniqueNumber);
 
-        if(student != null){
-            Gson gson = new Gson();
-            return gson.toJson(student);
+        if (student != null) {
+            return new Gson().toJson(student);
         } else {
             exchange.sendResponseHeaders(404, -1);
-            return null;
+            return "{\"error\": \"Student not found\"}";
         }
     }
 
     /**
-     * Генерирует уникальный номер для нового студента и проверяет его уникальность.
+     * Генерирует уникальный номер для студента.
      *
-     * @param exchange HttpExchange объект с запросом
-     * @return JSON строка с уникальным номером
-     * @throws IOException если произошла ошибка при ответе
-     * @throws SQLException если произошла ошибка при обращении к базе данных
+     * @param exchange Объект HttpExchange, представляющий HTTP-запрос.
+     * @return Уникальный номер в формате JSON.
+     * @throws IOException  В случае ошибки ввода-вывода.
+     * @throws SQLException В случае ошибки базы данных.
      */
     private String generateUniqueNumber(HttpExchange exchange) throws IOException, SQLException {
         String uniqueNumber;
         do {
-            uniqueNumber = String.valueOf((int) (Math.random() * 1_000_000)); // Генерация случайного номера
-        } while (studentService.isUniqueNumberExists(uniqueNumber)); // Проверка уникальности
+            uniqueNumber = String.valueOf((int) (Math.random() * 1_000_000));
+        } while (studentService.isUniqueNumberExists(uniqueNumber));
 
         return "{\"uniqueNumber\": \"" + uniqueNumber + "\"}";
     }
