@@ -11,7 +11,13 @@ import java.util.List;
  */
 public class StudentDAO {
 
-
+    /**
+     * Проверяет, существует ли уникальный номер в базе данных.
+     *
+     * @param uniqueNumber уникальный номер студента
+     * @return true, если номер существует, иначе false
+     * @throws SQLException если не удалось выполнить запрос
+     */
     public boolean isUniqueNumberExists(String uniqueNumber) throws SQLException {
         String sql = "SELECT COUNT(*) FROM students WHERE unique_number = ?";
         try (Connection connection = DatabaseConfig.getConnection();
@@ -45,6 +51,7 @@ public class StudentDAO {
             statement.setString(4, student.getBirthDate());
             statement.setString(5, student.getGroupName());
             statement.setString(6, student.getUniqueNumber());
+
             int affectedRows = statement.executeUpdate();
             // Получаем сгенерированные ключи
             if (affectedRows > 0) {
@@ -56,8 +63,6 @@ public class StudentDAO {
                     }
                 }
             }
-        } catch (SQLException e) {
-            throw new SQLException("Не удалось добавить студента. " + e.getMessage());
         }
     }
 
@@ -73,7 +78,7 @@ public class StudentDAO {
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, uniqueNumber);
             int rowsAffected = statement.executeUpdate();
-            if(rowsAffected == 0){
+            if (rowsAffected == 0) {
                 throw new SQLException("No student found with unique number: " + uniqueNumber);
             }
         }
@@ -110,19 +115,16 @@ public class StudentDAO {
      * Обновляет информацию о студенте.
      *
      * @param student объект Student с обновленной информацией
-     * @throws SQLException если не удалось обновить информацию
+     * @throws SQLException если не удалось обновить информацию или если уникальный номер не указан
      */
     public void updateStudent(Student student) throws SQLException {
-        // Проверяем, что уникальный номер не пустой
         if (student.getUniqueNumber() == null) {
             throw new SQLException("Unique number cannot be null.");
         }
 
-        // Строим запрос
         StringBuilder sql = new StringBuilder("UPDATE students SET ");
         List<Object> parameters = new ArrayList<>();
 
-        // Проверяем каждое поле и добавляем его в запрос, если оно не null
         if (student.getFirstName() != null) {
             sql.append("first_name = ?, ");
             parameters.add(student.getFirstName());
@@ -149,11 +151,9 @@ public class StudentDAO {
         sql.append(" WHERE unique_number = ?");
         parameters.add(student.getUniqueNumber());
 
-        // Выполняем запрос
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql.toString())) {
 
-            // Устанавливаем параметры для PreparedStatement
             for (int i = 0; i < parameters.size(); i++) {
                 statement.setObject(i + 1, parameters.get(i));
             }
@@ -172,24 +172,24 @@ public class StudentDAO {
      * @return объект студента, если найден, иначе null.
      * @throws SQLException если произошла ошибка при обращении к базе данных.
      */
-    public Student getStudentByUnique(String uniqueNumber) throws SQLException{
+    public Student getStudentByUnique(String uniqueNumber) throws SQLException {
         String sql = "SELECT * FROM students WHERE unique_number = ?";
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, uniqueNumber);
-            ResultSet resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                // Создаем объект студента из результатов запроса
-                return new Student(
-                        resultSet.getString("unique_number"),
-                        resultSet.getString("first_name"),
-                        resultSet.getString("last_name"),
-                        resultSet.getString("patronymic"),
-                        resultSet.getString("birth_date"),
-                        resultSet.getString("group_name")
-                );
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    // Создаем объект студента из результатов запроса
+                    return new Student(
+                            resultSet.getString("unique_number"),
+                            resultSet.getString("first_name"),
+                            resultSet.getString("last_name"),
+                            resultSet.getString("patronymic"),
+                            resultSet.getString("birth_date"),
+                            resultSet.getString("group_name")
+                    );
+                }
             }
         }
         return null; // Если студент не найден
